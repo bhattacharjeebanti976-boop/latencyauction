@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#7ed957">
+<title>LATENCY AUCTION ⚽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{--ink:#24392d;--cream:#fffaf0;--grass:#7ed957;--grass2:#6cc84a;--sun:#ffd23f;--pink:#ff8fb1;--sky:#7cd0ff;--red:#ff6b6b;--mint:#c9f5b5}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{font-family:'Fredoka',system-ui,sans-serif;color:var(--ink);background:
+  radial-gradient(circle at 50% 120px,transparent 0 70px,rgba(255,255,255,.35) 70px 74px,transparent 74px),
+  repeating-linear-gradient(90deg,#8fe36b 0 64px,#7fd95c 64px 128px);
+  background-attachment:fixed;min-height:100vh;overflow-x:hidden}
+button,input,textarea,select{font-family:inherit;color:var(--ink)}
+input,textarea{font-size:16px;border:3px solid var(--ink);border-radius:14px;padding:11px 13px;background:#fff;width:100%;outline:none}
+input:focus,textarea:focus{box-shadow:0 0 0 4px rgba(255,210,63,.7)}
+h1,h2,h3,p{margin:0}
+.wrap{max-width:560px;margin:0 auto;padding:12px 12px 110px}
+/* floating bg balls */
+#bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+#bg span{position:absolute;bottom:-60px;font-size:26px;opacity:.5;animation:floaty linear infinite}
+@keyframes floaty{to{transform:translateY(-115vh) rotate(360deg)}}
+header,.wrap{position:relative;z-index:1}
+/* header */
+header{position:sticky;top:0;z-index:20;background:var(--cream);border-bottom:4px solid var(--ink);padding:8px 10px;padding-top:max(8px,env(safe-area-inset-top))}
+.hin{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:8px}
+.logo{display:flex;align-items:center;gap:6px;font-weight:700;font-size:18px;line-height:1;flex:1;min-width:0;cursor:pointer;letter-spacing:.5px}
+.logo svg{width:34px;height:34px;animation:bounce 1.2s ease-in-out infinite;flex:none}
+.logo small{display:block;font-size:10px;font-weight:500;letter-spacing:2px;color:#4f7a5c}
+.hin .btn{padding:7px 10px;font-size:14px;border-radius:12px;box-shadow:0 3px 0 var(--ink)}
+@keyframes bounce{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-6px) rotate(8deg)}}
+/* cards & buttons */
+.card{background:var(--cream);border:3px solid var(--ink);border-radius:20px;box-shadow:0 5px 0 var(--ink);padding:14px;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:3px solid var(--ink);background:#fff;border-radius:16px;padding:11px 16px;font-weight:600;font-size:16px;cursor:pointer;box-shadow:0 4px 0 var(--ink);transition:transform .08s,box-shadow .08s;text-decoration:none;text-align:center}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.big{width:100%;padding:14px;font-size:18px}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:12px;box-shadow:0 3px 0 var(--ink)}
+.green{background:var(--grass)}.yellow{background:var(--sun)}.pink{background:var(--pink)}.sky{background:var(--sky)}.red{background:var(--red)}
+.muted{color:#5e7a68;font-size:14px}
+.sect{font-weight:700;margin-bottom:8px;font-size:16px}
+.tag{background:var(--sun);border:2px solid var(--ink);border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600}
+/* home */
+.hero{text-align:center;padding:10px 0 4px}
+.hero .mascot{width:120px;height:120px;margin:0 auto;animation:bounce 1.4s ease-in-out infinite}
+.hero h1{font-size:34px;line-height:1;margin-top:6px;text-shadow:0 3px 0 #fff}
+.hero p{margin-top:6px;font-weight:500}
+.stack{display:flex;flex-direction:column;gap:10px}
+.roll{height:34px;position:relative;overflow:hidden}
+.roll span{position:absolute;left:-40px;font-size:26px;animation:roll 6s linear infinite}
+@keyframes roll{to{left:110%;transform:rotate(1080deg)}}
+.warn{background:#fff3c4;border:3px dashed var(--ink);border-radius:16px;padding:10px;margin-bottom:12px;font-size:14px}
+/* room */
+.topbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px}
+.topbar .grow{flex:1}
+.code{background:var(--sun);border:3px solid var(--ink);border-radius:12px;padding:5px 10px;font-weight:700;letter-spacing:2px;cursor:pointer}
+.badge{background:var(--mint);border:2px solid var(--ink);border-radius:999px;padding:2px 10px;font-size:13px;font-weight:600}
+.statusline{display:flex;gap:8px;flex-wrap:wrap;font-size:13px;margin-bottom:12px;font-weight:500}
+.statusline span{background:#fff;border:2px solid var(--ink);border-radius:999px;padding:2px 10px}
+.live{background:var(--red)!important;color:#fff;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{transform:scale(1.07)}}
+.stagecard{background:#fff;border:4px solid var(--ink);border-radius:26px;box-shadow:0 7px 0 var(--ink);padding:18px 14px;text-align:center;margin-bottom:14px;position:relative;overflow:hidden}
+.stagecard.idle{background:var(--cream)}
+.stagecard.slidein{animation:slidein .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes slidein{from{transform:translateX(110%) rotate(8deg);opacity:0}}
+.bigball{font-size:56px;animation:bounce 1.3s infinite}
+.jersey{width:92px;height:92px;margin:0 auto 6px;border-radius:30px 30px 22px 22px;background:var(--c);border:4px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);animation:wiggle 2.2s ease-in-out infinite;position:relative}
+.jersey:before,.jersey:after{content:'';position:absolute;top:-4px;width:30px;height:30px;background:var(--c);border:4px solid var(--ink);border-radius:50%;z-index:-1}
+.jersey:before{left:-20px}.jersey:after{right:-20px}
+@keyframes wiggle{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.pname{font-size:28px;line-height:1.1;word-break:break-word}
+.base{font-size:14px;color:#5e7a68;margin-bottom:6px}
+.bidlabel{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#5e7a68}
+.bigbid{font-size:64px;font-weight:700;line-height:1;color:#e2582b;text-shadow:0 3px 0 var(--sun)}
+.bigbid small{font-size:26px;margin-left:2px}
+.bigbid.pop{animation:pop .45s cubic-bezier(.2,1.8,.4,1)}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.leader{margin-top:8px;display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:4px 14px;font-weight:700}
+.leader.none{background:#eee;font-weight:500}
+.going{margin-top:10px;font-size:20px;font-weight:700;animation:pulse .7s infinite}
+.going.g2{color:#d62828;font-size:24px}
+.note{text-align:center;font-weight:500;padding:8px}
+.bidgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.bidgrid .btn{font-size:20px;padding:14px 8px}
+.bidgrid .btn:first-child{background:var(--grass)}
+.crow{display:flex;gap:8px;margin-bottom:10px}
+.crow input{flex:1}
+.hostrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.prow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 2px;border-bottom:2px dashed #d9e7cf}
+.prow:last-child{border-bottom:0}
+.prow.col{flex-direction:column;align-items:stretch}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.prow small{color:#5e7a68}
+.team .th{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:17px}
+.team .th span{font-size:13px;background:var(--mint);border:2px solid var(--ink);border-radius:999px;padding:1px 9px}
+.bar{height:12px;background:#fff;border:2px solid var(--ink);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--grass),var(--sun));transition:width .5s}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lbl{font-size:12px;font-weight:600;color:#5e7a68;margin:6px 0 3px;display:block}
+.seg{display:flex;gap:8px}
+.seg label{flex:1}
+.seg input{display:none}
+.seg span{display:block;text-align:center;padding:10px;border:3px solid var(--ink);border-radius:14px;background:#fff;font-weight:600;cursor:pointer}
+.seg input:checked+span{background:var(--sun);box-shadow:0 3px 0 var(--ink)}
+.gate{text-align:center}
+.gate .mascot{width:90px;height:90px;margin:0 auto 6px;animation:bounce 1.4s infinite}
+/* nav */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--cream);border-top:4px solid var(--ink);padding:6px 8px;padding-bottom:max(6px,env(safe-area-inset-bottom));display:flex;gap:6px;justify-content:center}
+nav button{flex:1;max-width:130px;border:3px solid transparent;background:transparent;border-radius:14px;padding:5px 2px;font-size:12px;font-weight:600;cursor:pointer;position:relative}
+nav button b{display:block;font-size:22px;line-height:1.1}
+nav button.on{background:var(--sun);border-color:var(--ink)}
+nav .dot{position:absolute;top:0;right:8px;background:var(--red);color:#fff;border-radius:99px;font-size:11px;padding:0 6px;border:2px solid var(--ink)}
+/* modal, toast, fx */
+#modal .mback{position:fixed;inset:0;background:rgba(36,57,45,.6);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:12px;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.mbox{width:100%;max-width:520px;max-height:88vh;overflow:auto;margin:0;animation:up .3s cubic-bezier(.2,1.3,.4,1)}
+@keyframes up{from{transform:translateY(60px)}}
+.mbox h2{margin-bottom:6px}
+.mbox .btn{margin-top:10px;width:100%}
+.mbox ol{padding-left:20px;margin:8px 0}.mbox li{margin-bottom:7px}
+#toasts{position:fixed;top:70px;left:0;right:0;z-index:200;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.toast{background:var(--ink);color:#fff;padding:9px 16px;border-radius:999px;font-weight:500;max-width:90%;animation:up .3s,fade .3s;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden}
+.conf{position:absolute;top:-40px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(720deg)}}
+body.shake .wrap{animation:shake .6s}
+@keyframes shake{20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chip2{border:3px solid var(--ink);background:#fff;border-radius:14px;padding:8px 14px;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 3px 0 var(--ink)}
+.chip2.on{background:var(--sun)}
+.qrbox{text-align:center;margin:12px 0}
+.qrbox img{width:200px;height:200px;image-rendering:pixelated;border:4px solid var(--ink);border-radius:16px;background:#fff;padding:6px}
+.upi{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap}
+.upi .btn{margin:0;width:auto}
+.hide-sm{display:inline}
+@media(max-width:400px){.hide-sm{display:none}.logo{font-size:15px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="fx"></div>
+<div id="toasts"></div>
+<div id="modal" hidden></div>
+
+<header>
+  <div class="hin">
+    <div class="logo" data-act="home">
+      <svg viewBox="0 0 100 100"><use href="#ballsym"/></svg>
+      <div>LATENCY AUCTION<small>⚡ FASTEST FINGER WINS</small></div>
+    </div>
+    <button class="btn yellow" data-act="tip">☕<span class="hide-sm"> Buy me a coffee</span></button>
+    <button class="btn" data-act="rules">📜</button>
+    <button class="btn" data-act="mute" id="muteBtn">🔊</button>
+  </div>
+</header>
+
+<!-- reusable cute ball -->
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="ballsym" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="46" fill="#fff" stroke="#24392d" stroke-width="5"/>
+  <polygon points="50,9 60,16 56,27 44,27 40,16" fill="#24392d"/>
+  <polygon points="12,42 22,36 27,46 21,55 11,53" fill="#24392d"/>
+  <polygon points="88,42 78,36 73,46 79,55 89,53" fill="#24392d"/>
+  <polygon points="50,91 40,85 43,75 57,75 60,85" fill="#24392d"/>
+  <ellipse cx="38" cy="50" rx="4.5" ry="5.5" fill="#24392d"/>
+  <ellipse cx="62" cy="50" rx="4.5" ry="5.5" fill="#24392d"/>
+  <circle cx="36.5" cy="48" r="1.6" fill="#fff"/><circle cx="60.5" cy="48" r="1.6" fill="#fff"/>
+  <circle cx="30" cy="61" r="5" fill="#ff8fb1" opacity=".8"/><circle cx="70" cy="61" r="5" fill="#ff8fb1" opacity=".8"/>
+  <path d="M42 62 Q50 71 58 62" fill="none" stroke="#24392d" stroke-width="3.5" stroke-linecap="round"/>
+</symbol></defs></svg>
+
+<main class="wrap">
+  <!-- HOME -->
+  <section id="homeView">
+    <div id="cfgWarn" class="warn" hidden>⚠️ <b>Firebase isn't set up yet.</b> Open <code>index.html</code>, paste your Firebase config at the top of the script, and re-upload. See README.</div>
+    <div class="hero">
+      <svg class="mascot" viewBox="0 0 100 100"><use href="#ballsym"/></svg>
+      <h1>LATENCY<br>AUCTION</h1>
+      <p>Pick your football squad with friends — live bidding! 🏆</p>
+    </div>
+    <div class="roll"><span>⚽</span></div>
+    <div id="resume"></div>
+    <div class="card">
+      <div class="sect">👑 Create a room (be the Head)</div>
+      <div class="stack">
+        <input id="hName" maxlength="18" placeholder="Your name" autocomplete="off">
+        <button class="btn green big" data-act="create">🎪 Create room</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sect">🎟️ Join a room</div>
+      <div class="stack">
+        <input id="jCode" maxlength="60" placeholder="Room code or link" autocapitalize="characters" autocomplete="off">
+        <button class="btn sky big" data-act="joinhome">🚪 Find room</button>
+      </div>
+    </div>
+    <p class="muted" style="text-align:center">Play from anywhere in the world — no same Wi-Fi needed 🌍</p>
+  </section>
+
+  <!-- ROOM -->
+  <section id="roomView" hidden></section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, get, remove, push, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ============ 1) PASTE YOUR FIREBASE CONFIG HERE ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCp1nP-l7q1NOLBUk6RNuFWwrOjgxrwDk0",
+  authDomain: "latencyauction.firebaseapp.com",
+  databaseURL: "https://latencyauction-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "latencyauction",
+  appId: "1:744992645210:web:763e36f893ffceb32df863"
+};
+/* ============================================================ */
+
+const UPI_ID = "7001536469@fam";
+const configured = !firebaseConfig.apiKey.startsWith("YOUR");
+let db = null;
+if (configured) { try { db = getDatabase(initializeApp(firebaseConfig)); } catch (e) { console.error(e); } }
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clean = s => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 18);
+const fmt = n => Number.isInteger(+n) ? String(+n) : (+n).toFixed(1);
+const color = n => { let h = 0; for (const c of String(n)) h = (h * 31 + c.charCodeAt(0)) % 360; return `hsl(${h} 70% 55%)`; };
+const initials = n => String(n).split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+const genCode = () => { const a = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; return Array.from({length: 5}, () => a[Math.floor(Math.random() * a.length)]).join(''); };
+let uid = localStorage.getItem('la_uid');
+if (!uid) { uid = 'u' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36); localStorage.setItem('la_uid', uid); }
+
+function toast(m) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; $('#toasts').appendChild(t); setTimeout(() => t.remove(), 2800); }
+function openModal(h) { $('#modal').innerHTML = `<div class="mback"><div class="mbox card">${h}<button class="btn" data-act="closemodal">Close</button></div></div>`; $('#modal').hidden = false; }
+function closeModal() { $('#modal').hidden = true; $('#modal').innerHTML = ''; }
+function qrImg(text) { try { const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createDataURL(6, 3); } catch (e) { return ''; } }
+
+/* bg floating balls */
+(() => { const bg = $('#bg'); for (let i = 0; i < 9; i++) { const s = document.createElement('span'); s.textContent = i % 3 ? '⚽' : '⭐'; s.style.left = (i * 11 + 3) + '%'; s.style.animationDuration = (14 + i * 2.3) + 's'; s.style.animationDelay = (-i * 3) + 's'; bg.appendChild(s); } })();
+
+/* ---------- sound (synthesised, no files needed) ---------- */
+let AC = null, muted = localStorage.getItem('la_mute') === '1';
+function unlockAudio() { if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (AC && AC.state === 'suspended') AC.resume(); }
+function tone(f, d = .12, type = 'sine', vol = .15, delay = 0, slideTo) {
+  if (muted || !AC) return; const t = AC.currentTime + delay, o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t); if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + d);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + d + .05);
+}
+function noise(d = .8, vol = .12, freq = 1500) {
+  if (muted || !AC) return; const n = Math.floor(AC.sampleRate * d), buf = AC.createBuffer(1, n, AC.sampleRate), data = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  const s = AC.createBufferSource(); s.buffer = buf; const f = AC.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq;
+  const g = AC.createGain(); g.gain.value = vol; s.connect(f); f.connect(g); g.connect(AC.destination); s.start();
+}
+const sfx = {
+  click: () => tone(660, .06, 'triangle', .1),
+  bid: () => { tone(784, .09, 'square', .07); tone(1175, .13, 'square', .07, .08); },
+  whistle: () => { tone(2300, .14, 'sine', .12, 0, 2800); tone(2300, .14, 'sine', .12, .2, 2800); tone(2400, .35, 'sine', .12, .4, 2900); },
+  going: n => { tone(260, .12, 'sawtooth', .1, 0, 120); if (n > 1) tone(260, .12, 'sawtooth', .1, .22, 120); },
+  sold: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'triangle', .18, i * .1)); tone(1047, .5, 'triangle', .18, .45); noise(1.3, .14, 1800); },
+  unsold: () => { tone(400, .6, 'sawtooth', .09, 0, 110); },
+  join: () => [600, 800, 1000].forEach((f, i) => tone(f, .1, 'sine', .15, i * .07)),
+  err: () => tone(180, .2, 'square', .07)
+};
+function setMuteIcon() { $('#muteBtn').textContent = muted ? '🔇' : '🔊'; }
+setMuteIcon();
+
+/* ---------- fx ---------- */
+function confetti(em = ['⚽', '🎉', '⭐', '💛', '🏆']) {
+  for (let i = 0; i < 36; i++) { const s = document.createElement('span'); s.className = 'conf'; s.textContent = em[i % em.length];
+    s.style.left = Math.random() * 100 + 'vw'; s.style.animationDuration = (1.8 + Math.random() * 1.8) + 's'; s.style.animationDelay = Math.random() * .4 + 's'; s.style.fontSize = (16 + Math.random() * 18) + 'px';
+    $('#fx').appendChild(s); setTimeout(() => s.remove(), 4400); }
+}
+function shake() { document.body.classList.add('shake'); setTimeout(() => document.body.classList.remove('shake'), 650); }
+
+/* ---------- state ---------- */
+let S = null, room = null, unsub = null, isHost = false, built = false, tab = 'auction';
+let prev = {};
+const R = p => ref(db, `rooms/${room}${p ? '/' + p : ''}`);
+const cfg = () => Object.assign({ budget: 100, inc: 1, maxBidders: 4, maxSquad: 0 }, S?.settings || {});
+const plist = () => Object.entries(S?.players || {}).map(([id, p]) => ({ id, ...p })).sort((a, b) => (a.t || 0) - (b.t || 0));
+const members = () => Object.entries(S?.members || {}).map(([id, m]) => ({ id, ...m })).sort((a, b) => (a.t || 0) - (b.t || 0));
+const spent = u => plist().filter(p => p.status === 'sold' && p.soldTo === u).reduce((s, p) => s + (+p.price || 0), 0);
+const budgetLeft = u => cfg().budget - spent(u);
+const squad = u => plist().filter(p => p.status === 'sold' && p.soldTo === u).length;
+const myName = () => S?.members?.[uid]?.name || localStorage.getItem('la_name') || 'Player';
+function roleOf() { if (!S) return null; if (isHost) return 'host'; if (S.kicked?.[uid]) return 'kicked'; return S.members?.[uid]?.role || null; }
+
+/* ---------- navigation ---------- */
+function showView(v) { $('#homeView').hidden = v !== 'home'; $('#roomView').hidden = v !== 'room'; window.scrollTo(0, 0); }
+function leaveSub() { if (unsub) { unsub(); unsub = null; } }
+function goHome() { leaveSub(); room = null; S = null; built = false; history.replaceState(null, '', location.pathname); showView('home'); renderResume(); }
+function renderResume() {
+  const r = localStorage.getItem('la_room');
+  $('#resume').innerHTML = r ? `<div class="card" style="background:var(--mint)"><div class="prow"><span>⏪ Last room: <b>${esc(r)}</b></span><button class="btn sm yellow" data-act="resume" data-arg="${esc(r)}">Resume</button></div></div>` : '';
+}
+function enterRoom(code) {
+  if (!db) { toast('Firebase is not configured yet'); return; }
+  leaveSub(); room = code; built = false; S = null; prev = { first: true }; tab = 'auction';
+  localStorage.setItem('la_room', code); history.replaceState(null, '', '?room=' + code);
+  showView('room'); $('#roomView').innerHTML = '<div class="card" style="text-align:center"><div class="bigball">⚽</div>Loading room…</div>';
+  unsub = onValue(R(), snap => {
+    const v = snap.val();
+    if (!v) { toast('Room not found or closed 😿'); localStorage.removeItem('la_room'); goHome(); return; }
+    S = v; isHost = v.host === uid;
+    if (!built) { buildRoom(); built = true; }
+    onState();
+  }, () => toast('Connection problem — check Firebase rules'));
+}
+function parseCode(v) { const m = String(v).match(/room=([A-Za-z0-9]+)/); return (m ? m[1] : String(v)).toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+
+/* ---------- build room skeleton (once) ---------- */
+function buildRoom() {
+  const c = cfg();
+  $('#roomView').innerHTML = `
+  <div id="roomTop"></div>
+  <div id="gate"></div>
+  <div id="main">
+    <section id="tab-auction" class="tab">
+      <div id="stageView"></div>
+      <div id="bidBtns"></div>
+      <div id="customBid" class="crow" hidden><input id="customAmt" type="number" inputmode="decimal" placeholder="Custom bid (M)"><button class="btn yellow" data-act="custombid">Bid</button></div>
+      <div id="hostCtl"></div>
+      <div id="queue"></div>
+    </section>
+    <section id="tab-teams" class="tab" hidden><div id="teamsView"></div></section>
+    <section id="tab-people" class="tab" hidden><div id="peopleView"></div></section>
+    ${isHost ? `<section id="tab-setup" class="tab" hidden>
+      <div class="card"><div class="sect">➕ Add player</div>
+        <div class="grid2"><div><label class="lbl">Player name</label><input id="pName" maxlength="24" placeholder="e.g. Messi"></div>
+        <div><label class="lbl">Starting bid (M)</label><input id="pBase" type="number" inputmode="decimal" placeholder="5" value="5"></div></div>
+        <button class="btn green big" style="margin-top:10px" data-act="addplayer">Add player</button>
+        <label class="lbl" style="margin-top:12px">…or add many (one per line: Name, bid)</label>
+        <textarea id="bulk" rows="4" placeholder="Messi, 20&#10;Ronaldo, 18&#10;Neymar"></textarea>
+        <button class="btn sky big" style="margin-top:8px" data-act="bulkadd">Add all</button></div>
+      <div class="card"><div class="sect">📋 Players <span id="pCount" class="tag"></span></div><div id="setupPlayers"></div></div>
+      <div class="card"><div class="sect">⚙️ Auction settings</div>
+        <div class="grid2">
+          <div><label class="lbl">Budget per bidder (M)</label><input id="sBudget" type="number" inputmode="decimal" value="${c.budget}"></div>
+          <div><label class="lbl">Bid step (M)</label><input id="sInc" type="number" inputmode="decimal" value="${c.inc}"></div>
+          <div><label class="lbl">Max bidders (teams)</label><input id="sMax" type="number" inputmode="numeric" value="${c.maxBidders}"></div>
+          <div><label class="lbl">Max squad size (0 = ∞)</label><input id="sSquad" type="number" inputmode="numeric" value="${c.maxSquad}"></div>
+        </div>
+        <button class="btn yellow big" style="margin-top:10px" data-act="savesettings">Save settings</button></div>
+      <div class="card"><div class="sect">🚨 Danger zone</div>
+        <div class="stack"><button class="btn pink big" data-act="end">🏁 End auction</button><button class="btn red big" data-act="delroom">🗑️ Delete room</button></div></div>
+    </section>` : ''}
+  </div>
+  <nav id="nav">
+    <button data-act="tab" data-arg="auction"><b>🏟️</b>Auction</button>
+    <button data-act="tab" data-arg="teams"><b>👕</b>Teams</button>
+    <button data-act="tab" data-arg="people"><b>👥</b>People<span class="dot" id="pendDot" hidden></span></button>
+    ${isHost ? '<button data-act="tab" data-arg="setup"><b>⚙️</b>Setup</button>' : ''}
+  </nav>`;
+  setTab('auction');
+}
+function setTab(t) {
+  tab = t;
+  document.querySelectorAll('.tab').forEach(s => s.hidden = s.id !== 'tab-' + t);
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.arg === t));
+  window.scrollTo(0, 0);
+}
+
+/* ---------- render on every state change ---------- */
+function onState() {
+  const mode = isHost ? 'none' : S.kicked?.[uid] ? 'kicked' : !S.members?.[uid] ? 'join' : S.members[uid].role === 'pending' ? 'pending' : 'none';
+  renderTop(); renderGate(mode);
+  $('#main').hidden = mode !== 'none'; $('#nav').hidden = mode !== 'none';
+  if (mode === 'none') {
+    renderStage(); renderControls(); renderQueue(); renderTeams(); renderPeople();
+    if (isHost) renderSetup();
+  }
+  effects();
+}
+function renderTop() {
+  const role = roleOf(), n = members();
+  const badge = role === 'host' ? '👑 Head' : role === 'bidder' ? `🧢 ${esc(myName())} FC` : role === 'observer' ? '👀 Observer' : role === 'pending' ? '⏳ Pending' : '';
+  const st = S.status === 'live' ? '<span class="live">● LIVE</span>' : S.status === 'ended' ? '<span>🏁 Finished</span>' : '<span>🛋️ Lobby</span>';
+  $('#roomTop').innerHTML = `<div class="card topbar">
+    <button class="btn sm" data-act="home">←</button>
+    <div class="code" data-act="copycode" title="Copy code">${esc(room)} 📋</div>
+    <span class="badge">${badge}</span><span class="grow"></span>
+    <button class="btn sm sky" data-act="invite">📤 Invite</button>
+    <button class="btn sm" data-act="leave">🚪</button></div>
+    <div class="statusline">${st}<span>🧢 ${n.filter(m => m.role === 'bidder').length} bidders</span><span>👀 ${n.filter(m => m.role === 'observer').length} watching</span><span>⚽ ${plist().filter(p => p.status === 'pending').length} left</span></div>`;
+}
+function renderGate(mode) {
+  if (prev.gate === mode) return; prev.gate = mode;
+  const el = $('#gate');
+  if (mode === 'none') { el.innerHTML = ''; return; }
+  const ball = '<svg class="mascot" viewBox="0 0 100 100"><use href="#ballsym"/></svg>';
+  if (mode === 'join') el.innerHTML = `<div class="card gate">${ball}<h2>Join room <b>${esc(room)}</b></h2><p class="muted">Host: ${esc(S.hostName)}</p>
+    <div class="stack" style="margin-top:10px"><input id="gName" maxlength="18" placeholder="Your name" value="${esc(localStorage.getItem('la_name') || '')}">
+    <div class="seg"><label><input type="radio" name="grole" value="bidder" checked><span>🧢 Bidder</span></label><label><input type="radio" name="grole" value="observer"><span>👀 Observer</span></label></div>
+    <button class="btn green big" data-act="join">Request to join</button></div></div>`;
+  else if (mode === 'pending') el.innerHTML = `<div class="card gate">${ball}<h2>Waiting for the Head ⏳</h2><p class="muted">The host needs to approve you. Hang tight!</p></div>`;
+  else el.innerHTML = `<div class="card gate"><div class="bigball">🟥</div><h2>You were removed</h2><p class="muted">The host kicked you from this room.</p><button class="btn big" style="margin-top:10px" data-act="home">Go home</button></div>`;
+}
+function endedHtml() {
+  const pl = plist(), sold = pl.filter(p => p.status === 'sold').length;
+  return `<div class="stagecard idle"><div class="bigball">🏆</div><h2>Auction finished!</h2><p class="muted">${sold} sold • ${pl.length - sold} unsold</p></div>`;
+}
+function renderStage() {
+  const L = S.live, st = S.status; let h = '';
+  if (st === 'lobby') h = `<div class="stagecard idle"><div class="bigball">⚽</div><h2>Waiting room</h2><p class="muted" style="margin-top:6px">${isHost ? 'Add players in ⚙️ Setup, approve friends in 👥 People, then hit Start!' : 'The Head is getting things ready…'}</p></div>`;
+  else if (st === 'ended') h = endedHtml();
+  else if (L && S.players?.[L.pid]) {
+    const p = S.players[L.pid], pv = prev.live;
+    const isNew = !pv || pv.pid !== L.pid, changed = pv && pv.pid === L.pid && pv.amount !== L.amount;
+    h = `<div class="stagecard ${isNew ? 'slidein' : ''}">
+      <div class="jersey" style="--c:${color(p.name)}">${esc(initials(p.name))}</div>
+      <h2 class="pname">${esc(p.name)}</h2><div class="base">Starting bid ${fmt(p.base)}M</div>
+      <div class="bidlabel">${L.by ? 'Current bid' : 'Opening price'}</div>
+      <div class="bigbid ${changed ? 'pop' : ''}">${fmt(L.amount)}<small>M</small></div>
+      ${L.by ? `<div class="leader">👑 ${esc(L.byName)} FC${L.by === uid ? ' (you!)' : ''}</div>` : '<div class="leader none">No bids yet — be first!</div>'}
+      ${L.going ? `<div class="going g${L.going}">${L.going === 1 ? 'Going once…' : 'Going twice…!'} 🔨</div>` : ''}</div>`;
+  } else h = `<div class="stagecard idle"><div class="bigball">🎙️</div><h2>Next player coming up…</h2><p class="muted" style="margin-top:6px">Stay sharp! ⚡</p></div>`;
+  $('#stageView').innerHTML = h;
+}
+function renderControls() {
+  const L = S.live, role = roleOf(), st = S.status, c = cfg(); let b = '', custom = false;
+  if (st === 'live' && L) {
+    if (role === 'bidder') {
+      const next = L.by ? +(L.amount + c.inc).toFixed(2) : L.amount, left = budgetLeft(uid), lead = L.by === uid;
+      const full = c.maxSquad && squad(uid) >= c.maxSquad;
+      const opts = [...new Set([next, next + c.inc * 2, next + c.inc * 5, next + c.inc * 10].map(x => +x.toFixed(2)))];
+      b = `<div class="bidgrid">${opts.map((a, i) => `<button class="btn" data-act="bid" data-arg="${a}" ${lead || a > left || full ? 'disabled' : ''}>${i ? '+' : '⚡ '}${fmt(a)}M</button>`).join('')}</div>
+        <div class="note">${lead ? "You're leading! 👑" : full ? 'Squad full 🚫' : ''} 💰 Budget left: <b>${fmt(left)}M</b> · Squad: ${squad(uid)}</div>`;
+      custom = !lead && !full;
+    } else if (role === 'observer') b = '<div class="note">👀 You are watching the auction</div>';
+  } else if (st === 'live' && role === 'bidder') b = `<div class="note">💰 Budget left: <b>${fmt(budgetLeft(uid))}M</b> · Squad: ${squad(uid)}</div>`;
+  $('#bidBtns').innerHTML = b; $('#customBid').hidden = !custom;
+  let h = '';
+  if (isHost) {
+    h = '<div class="card"><div class="sect">👑 Head controls</div>';
+    if (st === 'lobby') h += '<button class="btn green big" data-act="start">🚀 Start auction</button>';
+    else if (st === 'live') {
+      if (L) h += `<div class="hostrow">
+        <button class="btn yellow" data-act="going" ${L.by ? '' : 'disabled'}>🔨 Going ${L.going ? 'twice' : 'once'}</button>
+        <button class="btn green" data-act="sold" ${L.by ? '' : 'disabled'}>✅ SOLD!</button>
+        <button class="btn red" data-act="unsold">❌ UNSOLD</button>
+        <button class="btn" data-act="back">↩️ Back to queue</button></div>`;
+      else h += '<button class="btn green big" data-act="next">▶ Next player</button><p class="muted" style="margin-top:8px;text-align:center">…or tap ▶ on any player in the queue</p>';
+    } else h += '<p class="muted">Auction finished. Tap 🚀 to reopen.</p><button class="btn green big" style="margin-top:8px" data-act="reopen">🚀 Reopen</button>';
+    h += '</div>';
+  }
+  $('#hostCtl').innerHTML = h;
+}
+function renderQueue() {
+  if (S.status === 'ended') { $('#queue').innerHTML = teamsHtml(); return; }
+  const L = S.live, pl = plist().filter(p => p.status !== 'sold' && !(L && L.pid === p.id));
+  const row = p => `<div class="prow"><span>${p.status === 'unsold' ? '😿' : '⚽'} ${esc(p.name)} <small>${fmt(p.base)}M${p.status === 'unsold' ? ' · unsold' : ''}</small></span>${isHost && S.status === 'live' && !L ? `<button class="btn sm green" data-act="bring" data-arg="${p.id}">▶</button>` : ''}</div>`;
+  $('#queue').innerHTML = `<div class="card"><div class="sect">📋 Up next (${pl.length})</div>${pl.length ? pl.map(row).join('') : '<div class="muted">Nobody in the queue.</div>'}</div>`;
+}
+function teamsHtml() {
+  const bs = members().filter(m => m.role === 'bidder'), c = cfg(), pl = plist();
+  let h = bs.length ? bs.map(m => {
+    const mine = pl.filter(p => p.status === 'sold' && p.soldTo === m.id), left = budgetLeft(m.id), pct = Math.max(0, Math.min(100, left / c.budget * 100));
+    return `<div class="card team"><div class="th"><b>🧢 ${esc(m.name)} FC${m.id === uid ? ' (you)' : ''}</b><span>${fmt(left)}M left</span></div><div class="bar"><i style="width:${pct}%"></i></div>
+      ${mine.length ? mine.map(p => `<div class="prow"><span>⚽ ${esc(p.name)}</span><b>${fmt(p.price)}M</b></div>`).join('') : '<div class="muted">No players yet</div>'}</div>`;
+  }).join('') : '<div class="card muted" style="text-align:center">No bidders yet 🧢</div>';
+  const un = pl.filter(p => p.status === 'unsold');
+  if (un.length) h += `<div class="card"><div class="sect">😿 Unsold</div>${un.map(p => `<div class="prow"><span>${esc(p.name)}</span><small>${fmt(p.base)}M</small></div>`).join('')}</div>`;
+  return h;
+}
+function renderTeams() { $('#teamsView').innerHTML = teamsHtml(); }
+function renderPeople() {
+  const ms = members(), pend = ms.filter(m => m.role === 'pending'), bid = ms.filter(m => m.role === 'bidder'), obs = ms.filter(m => m.role === 'observer'), c = cfg();
+  const dot = $('#pendDot'); dot.hidden = !(isHost && pend.length); dot.textContent = pend.length;
+  const me = m => m.id === uid ? ' <small>(you)</small>' : '';
+  let h = `<div class="card"><div class="sect">👑 Head</div><div class="prow"><span>${esc(S.hostName)}</span><span class="tag">host</span></div></div>`;
+  if (isHost && pend.length) h += `<div class="card"><div class="sect">⏳ Join requests (${pend.length})</div>${pend.map(m => `<div class="prow col"><span><b>${esc(m.name)}</b> <small>wants to be ${esc(m.want)}</small></span><div class="acts">
+    <button class="btn sm green" data-act="approve" data-arg="${m.id}" data-arg2="bidder">🧢 Bidder</button>
+    <button class="btn sm sky" data-act="approve" data-arg="${m.id}" data-arg2="observer">👀 Observer</button>
+    <button class="btn sm red" data-act="reject" data-arg="${m.id}">✖</button></div></div>`).join('')}</div>`;
+  else if (pend.length) h += `<div class="card muted">⏳ ${pend.length} waiting for approval</div>`;
+  h += `<div class="card"><div class="sect">🧢 Bidders (${bid.length}/${c.maxBidders})</div>${bid.length ? bid.map(m => `<div class="prow"><span>${esc(m.name)}${me(m)}</span>${isHost ? `<div class="acts"><button class="btn sm sky" data-act="setrole" data-arg="${m.id}" data-arg2="observer">👀</button><button class="btn sm red" data-act="kick" data-arg="${m.id}">⛔ Kick</button></div>` : ''}</div>`).join('') : '<div class="muted">None yet</div>'}</div>`;
+  h += `<div class="card"><div class="sect">👀 Observers (${obs.length})</div>${obs.length ? obs.map(m => `<div class="prow"><span>${esc(m.name)}${me(m)}</span>${isHost ? `<div class="acts"><button class="btn sm green" data-act="setrole" data-arg="${m.id}" data-arg2="bidder">🧢</button><button class="btn sm red" data-act="kick" data-arg="${m.id}">⛔ Kick</button></div>` : ''}</div>`).join('') : '<div class="muted">None yet</div>'}</div>`;
+  $('#peopleView').innerHTML = h;
+}
+function renderSetup() {
+  const pl = plist(), L = S.live;
+  $('#pCount').textContent = pl.length;
+  $('#setupPlayers').innerHTML = pl.length ? pl.map(p => `<div class="prow"><span>${p.status === 'sold' ? '✅' : p.status === 'unsold' ? '😿' : '⚽'} ${esc(p.name)} <small>${fmt(p.base)}M${p.status === 'sold' ? ' → ' + fmt(p.price) + 'M' : ''}</small></span>${p.status !== 'sold' && !(L && L.pid === p.id) ? `<button class="btn sm red" data-act="delplayer" data-arg="${p.id}">🗑️</button>` : ''}</div>`).join('') : '<div class="muted">No players yet. Add some above! ⬆️</div>';
+}
+
+/* ---------- reactions to changes (sounds / confetti) ---------- */
+function effects() {
+  const ev = S.event, L = S.live, role = roleOf(), pend = members().filter(m => m.role === 'pending').length;
+  if (prev.first) { prev.first = false; prev.evId = ev?.id; }
+  else {
+    if (ev && ev.id !== prev.evId) {
+      prev.evId = ev.id; toast(ev.text);
+      if (ev.type === 'sold') { sfx.sold(); confetti(); }
+      else if (ev.type === 'unsold') { sfx.unsold(); shake(); confetti(['😿', '💧']); }
+      else if (ev.type === 'started') { sfx.whistle(); confetti(['⚽', '📣']); }
+      else if (ev.type === 'ended') { sfx.sold(); confetti(['🏆', '🎉', '⭐']); }
+    }
+    if (L) {
+      const pv = prev.live;
+      if (!pv || pv.pid !== L.pid) sfx.whistle();
+      else if (pv.amount !== L.amount || pv.by !== L.by) sfx.bid();
+      else if (L.going && L.going !== pv.going) sfx.going(L.going);
+    }
+    if (prev.role === 'pending' && (role === 'bidder' || role === 'observer')) { sfx.join(); toast("You're in! 🎉"); confetti(['⚽']); }
+    if (prev.role === 'pending' && !role) toast('Request declined 😿');
+    if (prev.role && prev.role !== 'kicked' && role === 'kicked') { sfx.err(); toast('You were removed by the host'); }
+    if (isHost && pend > (prev.pend || 0)) { sfx.join(); toast('New join request! 🙋'); }
+  }
+  prev.live = L ? { ...L } : null; prev.role = role; prev.pend = pend;
+}
+
+/* ---------- actions ---------- */
+async function placeBid(amount) {
+  amount = Number(amount); const L = S?.live;
+  if (!L || !(amount > 0) || roleOf() !== 'bidder') return;
+  const c = cfg();
+  if (amount > budgetLeft(uid)) { sfx.err(); return toast('Not enough budget 💸'); }
+  if (c.maxSquad && squad(uid) >= c.maxSquad) { sfx.err(); return toast('Your squad is full'); }
+  const pid = L.pid, name = myName(); sfx.click();
+  try {
+    const res = await runTransaction(R('live'), cur => {
+      if (cur === null) return cur;
+      if (cur.pid !== pid || cur.by === uid) return;
+      if (cur.by ? amount <= cur.amount : amount < cur.amount) return;
+      return { ...cur, amount, by: uid, byName: name, going: 0, t: Date.now() };
+    });
+    if (!res.committed) { toast('Too slow! Someone bid first ⚡'); sfx.err(); }
+  } catch (e) { toast('Bid failed — check connection'); }
+}
+const ev = (type, text) => ({ id: Date.now(), type, text });
+function bringOnStage(id) {
+  const p = S.players?.[id]; if (!p) return;
+  update(R(), { live: { pid: id, amount: +p.base, going: 0, t: Date.now() }, [`players/${id}/status`]: 'pending' });
+}
+function addPlayers(list) {
+  const up = {}; list.forEach((p, i) => { const id = push(R('players')).key; up[`players/${id}`] = { name: p.name, base: p.base, status: 'pending', t: Date.now() + i }; });
+  return update(R(), up);
+}
+const approx = (v, d) => { const n = parseFloat(v); return isFinite(n) && n > 0 ? n : d; };
+
+const ACT = {
+  home: () => goHome(),
+  tab: t => { sfx.click(); setTab(t); },
+  mute: () => { muted = !muted; localStorage.setItem('la_mute', muted ? '1' : '0'); setMuteIcon(); if (!muted) sfx.click(); },
+  rules: () => openModal(`<h2>📜 Rules</h2><ol>
+    <li>👑 The <b>Head</b> (host) creates the room, adds players with a <b>starting bid</b>, and starts the auction.</li>
+    <li>📤 Friends join with the <b>room code / link / QR</b> as a 🧢 <b>Bidder</b> or 👀 <b>Observer</b>. The Head must approve everyone.</li>
+    <li>🧢 <b>One bidder = one team.</b> Everyone gets the same budget set by the Head.</li>
+    <li>⚡ The first bid can match the starting price. After that, every bid must be higher than the current one. You can't outbid yourself.</li>
+    <li>💸 You can't bid more than your remaining budget (or beyond the squad limit, if set).</li>
+    <li>🔨 The Head calls "Going once… twice…" then <b>SOLD</b> to the top bidder, or <b>UNSOLD</b>. The Head's decision is final.</li>
+    <li>😿 Unsold players can be brought back to the stage again later.</li>
+    <li>👀 Observers can only watch — no bidding.</li>
+    <li>⛔ The Head can kick anyone. A kicked bidder's players go back to the pool.</li>
+    <li>🤝 It's a game between friends — play fair and have fun!</li></ol>`),
+  tip: () => openTip(),
+  tipamt: a => { const c = $('#tipCustom'); if (a === 'custom') { c.hidden = false; c.focus(); setTip(c.value); } else { c.hidden = true; setTip(a); } },
+  copyupi: () => { navigator.clipboard?.writeText(UPI_ID); toast('UPI ID copied 💛'); },
+  closemodal: () => closeModal(),
+  create: async () => {
+    if (!db) return toast('Set up Firebase first (see README)');
+    const name = clean($('#hName').value); if (!name) return toast('Type your name first 🙂');
+    localStorage.setItem('la_name', name);
+    try {
+      let code; for (let i = 0; i < 6; i++) { code = genCode(); if (!(await get(ref(db, `rooms/${code}/host`))).exists()) break; }
+      await set(ref(db, 'rooms/' + code), { host: uid, hostName: name, created: Date.now(), status: 'lobby', settings: { budget: 100, inc: 1, maxBidders: 4, maxSquad: 0 } });
+      sfx.join(); enterRoom(code);
+    } catch (e) { console.error(e); toast("Couldn't create room — check Firebase rules"); }
+  },
+  joinhome: async () => {
+    if (!db) return toast('Set up Firebase first (see README)');
+    const code = parseCode($('#jCode').value); if (code.length < 4) return toast('Enter the room code');
+    enterRoom(code);
+  },
+  resume: c => enterRoom(c),
+  join: () => {
+    const name = clean($('#gName').value); if (!name) return toast('Type your name first 🙂');
+    const want = document.querySelector('input[name=grole]:checked')?.value || 'observer';
+    localStorage.setItem('la_name', name); sfx.click();
+    set(R('members/' + uid), { name, want, role: 'pending', t: Date.now() });
+  },
+  copycode: () => { navigator.clipboard?.writeText(room); toast('Code copied 📋'); },
+  invite: () => {
+    const url = location.origin + location.pathname + '?room=' + room;
+    const text = `⚽ Join my LATENCY AUCTION!\nRoom code: ${room}\n${url}`;
+    openModal(`<h2>📤 Invite friends</h2><div class="qrbox"><img src="${qrImg(url)}" alt="QR"><div style="margin-top:8px">Room code <span class="code" data-act="copycode">${esc(room)} 📋</span></div></div>
+      <a class="btn green big" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(text)}">💬 Share on WhatsApp</a>
+      <button class="btn sky" data-act="copylink" data-arg="${esc(url)}">🔗 Copy link</button>
+      ${navigator.share ? `<button class="btn" data-act="nativeshare" data-arg="${esc(url)}">📲 More share options</button>` : ''}`);
+  },
+  copylink: u => { navigator.clipboard?.writeText(u); toast('Link copied 🔗'); },
+  nativeshare: u => navigator.share({ title: 'LATENCY AUCTION', text: `⚽ Join my auction! Code: ${room}`, url: u }).catch(() => {}),
+  leave: () => {
+    if (!confirm('Leave this room?')) return;
+    const r = room, host = isHost; localStorage.removeItem('la_room'); goHome();
+    if (!host) remove(ref(db, `rooms/${r}/members/${uid}`));
+  },
+  bid: a => placeBid(a),
+  custombid: () => { const v = parseFloat($('#customAmt').value); if (!(v > 0)) return toast('Type an amount'); placeBid(v); $('#customAmt').value = ''; },
+  /* host */
+  start: () => {
+    if (!plist().length) return toast('Add some players first (⚙️ Setup)');
+    update(R(), { status: 'live', event: ev('started', '🚀 Auction started — let the bidding begin!') });
+  },
+  reopen: () => update(R(), { status: 'live' }),
+  next: () => { const p = plist().find(p => p.status === 'pending'); if (!p) return toast('No players left! Re-auction unsold ones or end 🏁'); bringOnStage(p.id); },
+  bring: id => { if (S.live) return toast('Finish the current player first'); bringOnStage(id); },
+  going: () => { const L = S.live; if (L?.by) update(R('live'), { going: Math.min(2, (L.going || 0) + 1) }); },
+  sold: () => {
+    const L = S.live; if (!L?.by) return; const p = S.players[L.pid];
+    update(R(), { [`players/${L.pid}/status`]: 'sold', [`players/${L.pid}/soldTo`]: L.by, [`players/${L.pid}/price`]: L.amount, live: null, event: ev('sold', `✅ SOLD! ${p.name} → ${L.byName} FC for ${fmt(L.amount)}M`) });
+  },
+  unsold: () => { const L = S.live; if (!L) return; const p = S.players[L.pid]; update(R(), { [`players/${L.pid}/status`]: 'unsold', live: null, event: ev('unsold', `❌ ${p.name} went UNSOLD`) }); },
+  back: () => update(R(), { live: null }),
+  approve: (id, role) => {
+    if (role === 'bidder' && members().filter(m => m.role === 'bidder').length >= cfg().maxBidders) { sfx.err(); return toast('Max bidders reached — raise it in Setup'); }
+    update(R('members/' + id), { role }); sfx.join();
+  },
+  reject: id => remove(R('members/' + id)),
+  setrole: (id, role) => {
+    if (role === 'bidder' && members().filter(m => m.role === 'bidder').length >= cfg().maxBidders) { sfx.err(); return toast('Max bidders reached'); }
+    if (role === 'observer' && plist().some(p => p.soldTo === id && p.status === 'sold')) return toast('This bidder already owns players');
+    if (role === 'observer' && S.live?.by === id) return toast('They are leading the current bid');
+    update(R('members/' + id), { role });
+  },
+  kick: id => {
+    const m = S.members?.[id]; if (!confirm(`Kick ${m?.name || 'this player'}?`)) return;
+    const up = { [`members/${id}`]: null, [`kicked/${id}`]: true };
+    plist().filter(p => p.soldTo === id && p.status === 'sold').forEach(p => { up[`players/${p.id}/status`] = 'pending'; up[`players/${p.id}/soldTo`] = null; up[`players/${p.id}/price`] = null; });
+    if (S.live?.by === id) up.live = { pid: S.live.pid, amount: +S.players[S.live.pid].base, going: 0, t: Date.now() };
+    update(R(), up); toast('Kicked ⛔');
+  },
+  addplayer: () => {
+    const name = clean($('#pName').value).slice(0, 24); if (!name) return toast('Type a player name');
+    addPlayers([{ name, base: approx($('#pBase').value, 5) }]).then(() => { $('#pName').value = ''; $('#pName').focus(); sfx.click(); });
+  },
+  bulkadd: () => {
+    const list = $('#bulk').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+      const i = l.lastIndexOf(','), hasNum = i > 0 && isFinite(parseFloat(l.slice(i + 1)));
+      return { name: (hasNum ? l.slice(0, i) : l).trim().slice(0, 24), base: hasNum ? approx(l.slice(i + 1), 5) : 5 };
+    }).filter(p => p.name);
+    if (!list.length) return toast('Nothing to add'); addPlayers(list).then(() => { $('#bulk').value = ''; toast(`${list.length} players added ⚽`); });
+  },
+  delplayer: id => update(R(), { [`players/${id}`]: null }),
+  savesettings: () => {
+    update(R('settings'), { budget: approx($('#sBudget').value, 100), inc: approx($('#sInc').value, 1), maxBidders: Math.max(1, Math.floor(approx($('#sMax').value, 4))), maxSquad: Math.max(0, Math.floor(parseFloat($('#sSquad').value) || 0)) });
+    toast('Settings saved ✅');
+  },
+  end: () => { if (confirm('End the auction for everyone?')) update(R(), { status: 'ended', live: null, event: ev('ended', '🏁 Auction finished! Check the teams 👕') }); },
+  delroom: () => { if (confirm('Delete this room for everyone? This cannot be undone.')) { remove(R()); } }
+};
+
+/* ---------- tip modal ---------- */
+function upiUri(a) { return `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent('Latency Auction')}&am=${a}&cu=INR&tn=${encodeURIComponent('Coffee tip')}`; }
+function openTip() {
+  openModal(`<h2>☕ Buy me a coffee</h2><p class="muted">Enjoying Latency Auction? Tip the dev! 💛</p>
+    <div class="chips">${[10, 40, 100].map(a => `<button class="chip2" data-act="tipamt" data-arg="${a}" data-v="${a}">₹${a}</button>`).join('')}<button class="chip2" data-act="tipamt" data-arg="custom" data-v="custom">✏️ Custom</button></div>
+    <input id="tipCustom" type="number" inputmode="numeric" min="1" placeholder="Enter amount in ₹" hidden>
+    <div class="qrbox"><img id="tipQR" alt="UPI QR"><div id="tipAmt" style="margin-top:6px;font-weight:600"></div></div>
+    <div class="upi">UPI: <b>${UPI_ID}</b> <button class="btn sm" data-act="copyupi">Copy</button></div>
+    <a id="tipLink" class="btn yellow big" href="#">Pay with UPI app</a>`);
+  setTip(40);
+}
+function setTip(a) {
+  a = Math.floor(Number(a));
+  document.querySelectorAll('.chip2').forEach(c => { const v = c.dataset.v; c.classList.toggle('on', v === 'custom' ? !$('#tipCustom').hidden : String(a) === v && $('#tipCustom').hidden); });
+  if (!(a >= 1)) { $('#tipQR').removeAttribute('src'); $('#tipAmt').textContent = 'Enter an amount ✏️'; $('#tipLink').removeAttribute('href'); return; }
+  const u = upiUri(a); $('#tipQR').src = qrImg(u); $('#tipAmt').textContent = `Scan to pay ₹${a}`; $('#tipLink').href = u; $('#tipLink').textContent = `Pay ₹${a} with UPI app`;
+}
+
+/* ---------- global events ---------- */
+document.addEventListener('click', e => {
+  unlockAudio();
+  if (e.target.classList?.contains('mback')) return closeModal();
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  ACT[b.dataset.act]?.(b.dataset.arg, b.dataset.arg2, b);
+});
+document.addEventListener('input', e => { if (e.target.id === 'tipCustom') setTip(e.target.value); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (e.target.id === 'customAmt') ACT.custombid(); else if (e.target.id === 'hName') ACT.create(); else if (e.target.id === 'jCode') ACT.joinhome(); else if (e.target.id === 'gName') ACT.join(); else if (e.target.id === 'pName') ACT.addplayer();
+});
+
+/* ---------- boot ---------- */
+$('#hName').value = localStorage.getItem('la_name') || '';
+if (!configured) $('#cfgWarn').hidden = false;
+const urlRoom = new URLSearchParams(location.search).get('room');
+if (urlRoom && db) enterRoom(parseCode(urlRoom)); else { showView('home'); renderResume(); }
+</script>
+</body>
+</html>
